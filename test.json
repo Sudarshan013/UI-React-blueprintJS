@@ -1,0 +1,48 @@
+[{
+    "name" : "Store-wide Reports",
+    "email" : [{
+        "name" : "Product Segment Report",
+        "type" : "Reports",
+        "preference_id" : 3,
+        "enabled" : false,
+        "frequency" : nil,
+        "day_of_the_week" : nil
+    }, {
+        "name" : "Tag Report",
+        "type" : "Reports",
+        "preference_id" : 6,
+        "enabled" : true,
+        "frequency" : "every week",
+        "day_of_the_week" : nil
+    }]
+}, {
+    "name" : "Search Reports",
+    "email" : [{
+        "name" : "No Results Searches",
+        "type" : "Reports",
+        "preference_id" : 1,
+        "enabled" : true,
+        "frequency" : "every week",
+        "day_of_the_week" : 2
+    }, {
+        "name" : "Top Searches",
+        "type" : "Reports",
+        "preference_id" : 2,
+        "enabled" : true,
+        "frequency" : "every 2 week",
+        "day_of_the_week" : 1
+    }]
+}, {
+    "name" : "Listing Page Reports",
+    "email" : []
+}, {
+    "name" : "Developer Alerts",
+    "email" : [{
+        "name" : "Developer Alerts",
+        "type" : "Developer Alerts",
+        "preference_id" : 4,
+        "enabled" : true,
+        "frequency" : nil,
+        "day_of_the_week" : nil
+    }]
+}]
