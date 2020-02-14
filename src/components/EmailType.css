@@ -1,54 +1,9 @@
-.email-types
-{
-    /* width: 80%; */
-    padding: 40px;
-    margin-left: 10%;
-    margin-top: 2%;
-    margin-right: 10%;
-    background-color: white;
-    border-radius: 10px;
-}
-.email-type-title
-{
-    color: black;
-    font-weight: bold;
-    text-align: left;
-    text-transform: none;
-    width: 68%;
-    font-size: 28px;
-}
 
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-  }
-  
-  td, th {
-    /* border: 1px solid #dddddd; */
-    text-align: left;
-    padding: 16px;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #DAE1EF;
-  }
-  .email-icon,.email-manage-icon
-{
-    color: rgb(132, 133, 134);
-    text-align: center;
-}
-.report-type
+
+.email-type
 {
     font-size: 16px;
     font-weight: 700;
     color: #2A3375;
 }
-.switch-icon,.manage-icon,.checkbox-icon
-{
-    text-align: center;
-}
-.hide
-{
-  display: none;
-}
+

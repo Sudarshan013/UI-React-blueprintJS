@@ -1,40 +1,51 @@
 import React from 'react';
 import './App.css'
-import {Button} from 'antd'
+import produce from "immer"
 import EmailType from './EmailType';
-import EmailSchdeule from './EmailSchdeule';
+import {Spinner} from '@blueprintjs/core'
+import styled from 'styled-components'
 
-
-class App extends React.Component
+const EmailPrefHeader = styled.div`
+  font-size: 27px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  padding: 16px;
+  margin: 0;
+  font-family: 'Roboto';
+  font-weight: 300;
+  color: #333;
+  background: #fff;
+  background-color : white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+`
+class App extends React.PureComponent
 {
   state = {
-            reportsArray:[],
-            alertsArray:[],
-            developerAlertsArray :[],
-          
-            
+            emailTypesCollection:[]
           }
   componentDidMount = async ()=>{
-    const api =[
+    const emailTypesCollection =[
                 {
-                  "name": "Store-wide Reports",
+                  "name": "Store wide reports",
                   "email": [
                     {
                       "name": "Product Segment Report",
+                      "id": "product_segment_reports",
                       "description": "Info about Product Segment Report",
-                      "type": "Reports",
+                      "type": "reports",
                       "preference_id": 3,
                       "enabled": false,
-                      "frequency": "nil",
-                      "day_of_the_week": "nil"
+                      "frequency": "every two weeks",
+                      "day_of_the_week": "   "
                     },
                     {
                       "name": "Tag Report",
+                      "id": "tag_report",
                       "description": "Info about tag Report",
-                      "type": "Reports",
+                      "type": "reports",
                       "preference_id": 6,
                       "enabled": true,
-                      "frequency": "every week",
+                      "frequency": "very week",
                       "day_of_the_week": "nil"
                     }
                   ]
@@ -62,7 +73,7 @@ class App extends React.Component
                       "type": "Reports",
                       "preference_id": 1,
                       "enabled": true,
-                      "frequency": "every week",
+                      "frequency": "Every week",
                       "day_of_the_week": 2
                     },
                     {
@@ -71,7 +82,7 @@ class App extends React.Component
                       "type": "Reports",
                       "preference_id": 2,
                       "enabled": true,
-                      "frequency": "every 2 week",
+                      "frequency": "Every two weeks",
                       "day_of_the_week": 1
                     }
                   ]
@@ -85,7 +96,7 @@ class App extends React.Component
                       "type": "Reports",
                       "preference_id": 2,
                       "enabled": true,
-                      "frequency": "every 2 week",
+                      "frequency": "Every two weeks",
                       "day_of_the_week": 1
                     }
                   ]
@@ -96,7 +107,7 @@ class App extends React.Component
                     {
                       "name": "Developer Alerts",
                       "description": "Info about Developer Alerts",
-                      "type": "Developer Alerts",
+                      "type": "developer_alerts",
                       "preference_id": 4,
                       "enabled": true,
                       "frequency": "nil",
@@ -105,67 +116,57 @@ class App extends React.Component
                   ]
                 }
               ]
-          const reportsArray=[],alertsArray=[],developerAlertsArray=[]
-           api.map(
-           (ele)=>{
-               ele.email.map(
-                   (email)=>{
-                       switch(email.type.toLowerCase())
-                       {
-                         case "reports" : reportsArray.push(email)
-                                          break;
-                         case "alerts" : alertsArray.push(email)
-                                          break
-                         case "developer alerts" : developerAlertsArray.push(email)
-                                          break
-                       }
-               })
-           })
-          this.setState({reportsArray,alertsArray,developerAlertsArray})
+              this.setState({emailTypesCollection})
+
+            }
+
+   renderPageHeader = ()=>{
+
+      return(
+
+                <EmailPrefHeader>
+                  Customize your mail preferences
+                </EmailPrefHeader>
+
+
+      )
    }
-  testRender = (emailType,emailTypeName)=>{
-    this.setState({
-      reportsArray: this.state.reportsArray.map(el => (el.name === emailTypeName ? {...el, emailType} : el))
-    });
+
+  onSwitchHandle = (emailType,mode)=>{
+    this.setState(
+      produce(draft => {
+        draft.emailTypesCollection.map((mailName)=>{
+          return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType.enabled=mode):subMailType)
+        })
+      })
+    )
   }
-  renderMail = (emailType)=>{
-     if(emailType.length) 
-     {
-       return <EmailType title={emailType[0].type} emailTypes={emailType} testRender={this.testRender}/>
-     }
-   }
- 
+  onClickMailPreferences = (emailType,frequency,dayOfWeek)=>{
+        console.log(emailType,frequency,dayOfWeek)
+  }
+
+  
   render()
   {
-    
-    return(
-    <div className="main-container">
-      <div className="email-pref-header">
-        Customize your mail preference
-      </div>
-      <div className="email-type"> 
-       {
-         console.log( this.state.reportsArray)
-       }
-        {
-          this.renderMail(this.state.reportsArray)           
-        }
-        {
-          this.renderMail(this.state.alertsArray)          
-        }
-        {          
-         this.renderMail(this.state.developerAlertsArray)          
-        }
-      </div>
-     
-     <div>
-       <Button type="primary">
-         hey
-       </Button>
-     </div>
-    </div>
-  )
+    if(this.state.emailTypesCollection.length)
+    {
+      // console.log(this.state.emailTypesCollection[0].email[0].enabled)
+      return (
+        <div className="email-type">
+          {this.renderPageHeader()}
+          <EmailType 
+            emailCollection={this.state.emailTypesCollection} onSwitchHandle={this.onSwitchHandle} onClickMailPreferences={this.onClickMailPreferences}
+          />
+        </div>
+       )
+    } else
+    {
+      return(
+        <div>
+         <Spinner/>
+        </div>
+      )
+    }
   }
 }
-
 export default App;
