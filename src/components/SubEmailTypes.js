@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, forwardRef } from 'react'
 import {Button,Switch,Popover,Collapse,Menu,Card, MenuItem} from '@blueprintjs/core'
 import {Select} from '@blueprintjs/select'
 import styled from 'styled-components'
@@ -14,11 +14,15 @@ const SubEmailType = styled.div`
     align-items: center;
      
 `
+const Preferences = styled.div`
+    display : flex;
+    flex-direction : row;
+`
 const ManagePreferences = styled.div`
   padding-right: 15px;
 `
 
-const SubEmailWrapper = styled.tr`
+const SubEmailWrapper = styled.div`
     :hover {
         background-color: #edf9ff;
     }
@@ -31,13 +35,21 @@ const SubEmailWrapper = styled.tr`
 `
 const SelectPreferences = styled.select`
     background-color : white;
-    margin-left : 5px;
+    margin-left : 0px;
     margin-right : 3px;
 `
 const SwitchOverrite = styled.div`
     .bp3-control{
         margin-bottom: 0;
     }
+`
+const PopoverWrappper = styled.span`
+
+    align-items: center;
+    display : inline;
+    display: flex;
+    margin-right: 10px;
+
 `
 const Day = styled.li`
     padding : 10px;
@@ -56,6 +68,8 @@ const Days = styled.div`
         flex-direction : row;
 `
 const CollapseCard = styled.div`
+    // margin-left:10px;
+    // margin-right : 10px;
 
 `
 
@@ -64,9 +78,9 @@ export default class SubEmailTypes extends React.PureComponent {
             textColor:"#8C9196",
             dayBgColor: "#F1F3F4",
             isOpen : false,
-            showDays : true,
+            showDays : false,
+            frequency : 'Recieve',
             settings : 'Manage',
-            value : 'every two weeks',
             switchDisable : false,
             selectedDayId : '',
             days:[{
@@ -99,10 +113,11 @@ export default class SubEmailTypes extends React.PureComponent {
                 selected: false
             }]
         } 
+       
         onDaySelect = (day,mode)=>{
-            console.log(day)
-            this.setState({selectedDayId:day.id})
-            this.setState({dayBgColor:"#1a73e8",textColor : "white"})
+            this.setState(
+               {selectedDayId:day.id,dayBgColor:"#1a73e8",textColor : "white"}
+            )
             this.setState(
                 produce(draft => {
                     draft.days.map((d)=>{
@@ -110,37 +125,39 @@ export default class SubEmailTypes extends React.PureComponent {
                 })
                 })
             )
-            toast(' Wow so easy!')   
+            this.props.onDayUpdate(this.props.subEmail,day.id)
+            toast('Changes saved..')   
         }
         toggleSettings = ()=>{
-            this.setState({isOpen:!this.state.isOpen})
-            this.setState({switchDisable:!this.state.switchDisable})
-            this.setState({settings:this.state.settings==="Manage"?"Hide":"Manage"})
+            this.setState({isOpen:!this.state.isOpen,switchDisable:!this.state.switchDisable,
+                           settings:this.state.settings==="Manage"?"Hide":"Manage"}
+                        )
         }
-        handleChange=(event)=> {
-            console.log(event.target.value)
-            if(event.target.value==="every_week" || event.target.value==="every_two_weeks")
+        handleFrequencyChange=(frequency)=> {
+            // console.log(frequency)
+            if(frequency==="Every week" || frequency==="Every two weeks")
             {
                 this.setState({showDays:true})
             }
             else{
                 this.setState({showDays:false})
             }
-            this.setState({value: event.target.value});
+            this.setState({frequency});
+            this.props.onFrequencyUpdate(this.props.subEmail,frequency)
         }
         handleSubmit=(event)=> {
-            this.props.onClickMailPreferences()
-            this.setState({settings:this.state.settings==="Manage"?"Hide":"Manage"})
-            this.setState({isOpen:!this.state.isOpen})
-            this.setState({switchDisable : !this.state.switchDisable})
-            this.props.onClickMailPreferences(this.props.subEmail,this.state.value,this.state.selectedDayId)
-            event.preventDefault();
+            
+            // this.setState({settings:this.state.settings==="Manage"?"Hide":"Manage"})
+            // this.setState({isOpen:!this.state.isOpen})
+            // this.setState({switchDisable : !this.state.switchDisable})
+            // this.props.onClickMailPreferences(this.props.subEmail,this.state.value,this.state.selectedDayId)
+            // event.preventDefault();
         }
         renderDays =()=>{
             return this.state.days.map((day)=>{
                 return (                    
                     <Day key={day.id} onClick={()=>{this.onDaySelect(day,!day.selected)}} style={{color:day.selected||(this.props.subEmail.day_of_the_week==day.id)?'white':'#8C9196', backgroundColor:day.selected||(this.props.subEmail.day_of_the_week==day.id)?'#1a73e8':'#F1F3F4'}} >
-                        {console.log(day.selected)} {day.label}
+                        {day.label}
                     </Day>
                 )
             })
@@ -150,9 +167,9 @@ export default class SubEmailTypes extends React.PureComponent {
     render() {
         const viewSettings = this.props.subEmail.enabled
         const showDays = this.state.showDays
-        console.log(this.state.days)
+        // console.log(this.state.days)
         return (
-            <div>
+            <div key={"sub"+this.props.subEmail.name}>
                 <SubEmailWrapper>
                         <SubEmailType>
                             <div>
@@ -167,7 +184,7 @@ export default class SubEmailTypes extends React.PureComponent {
                             <ManagePreferences>
                                 {
                                     viewSettings?
-                                            <a active={false} onClick={this.toggleSettings}>
+                                            <a  onClick={this.toggleSettings}>
                                                 {this.state.settings}
                                             </a>
                                             :
@@ -177,7 +194,6 @@ export default class SubEmailTypes extends React.PureComponent {
                             </ManagePreferences>
                             <SwitchOverrite>
                                 <Switch large={true} checked={this.props.subEmail.enabled} onChange={()=>{this.props.onSwitchHandle(this.props.subEmail,!this.props.subEmail.enabled)}} disabled={this.state.switchDisable}/>
-
                             </SwitchOverrite>
                          
                         </SubEmailType>
@@ -185,45 +201,48 @@ export default class SubEmailTypes extends React.PureComponent {
             </SubEmailWrapper>       
             <CollapseCard>
                     <Collapse isOpen={this.state.isOpen} >
-                        <Card elevation={2}>
-                                <form onSubmit={this.handleSubmit}>
-                                <label>
-                                    Recieve
-                                    {/* <Popover content={
-                                    <Menu text="ooo">
-                                            <MenuItem text="Custom SVG icon"/>
-                                            <MenuItem text="sam"/>
-                                            <MenuItem text="bam"/>
+                        <Card elevation={0}>             
+                                    <Preferences>
+                                    
+                                            {/* <SelectPreferences className="select-option" value={this.state.value} onChange={this.handleChange}>
+                                                <option value="every_week">Every week</option>
+                                                <option value="every_two_weeks">Every two weeks</option>
+                                                <option value="start_of_every_month">Start of every month</option>
+                                                <option value="end_of_every_month">End of every month</option>
+                                                
+                                            </SelectPreferences> */}
                                         
-                                    </Menu>} position={'bottom'}>
-                                        <Button icon="share" text="Recieve every." />
-                                    </Popover> */}
-                                    <SelectPreferences className="select-option" value={this.state.value} onChange={this.handleChange}>
-                                        <option value="every_week">Every week</option>
-                                        <option value="every_two_weeks">Every two weeks</option>
-                                        <option value="start_of_every_month">Start of every month</option>
-                                        <option value="end_of_every_month">End of every month</option>
-                                    </SelectPreferences>
-                                    <div>
-
-                                    </div>
-                                    <div style={{float : 'right'}}> 
-                                            <Button intent="success" text="Save" type="submit" style={{backgroundColor:'#2A3375'}}/>
-                                    </div>
-                                    <div>
-                                        {
-                                            showDays?
-                                            <Days>
-                                            {
-                                                this.renderDays()  
-                                            }
-                                            </Days>
-                                            :
-                                            ""
-                                        }                           
-                                    </div>  
-                                    </label>
-                                </form>
+                                            {/* <div style={{float : 'right'}}> 
+                                                    <Button intent="success" text="Save" type="submit" style={{backgroundColor:'#2A3375'}}/>
+                                            </div> */}
+                                            <PopoverWrappper>                                               
+                                                <Popover  content={
+                                                    <div style={{display:'inline'}}>
+                                                        <Menu >
+                                                                <MenuItem text="Every week" onClick={()=>{this.handleFrequencyChange('Every week')}} />
+                                                                <MenuItem text="Every two weeks" onClick={()=>{this.handleFrequencyChange('Every two weeks')}}/>
+                                                                <MenuItem text="Start of every month" onClick={()=>{this.handleFrequencyChange('Start of every month')}}/>
+                                                                <MenuItem text="End of every month" onClick={()=>{this.handleFrequencyChange('End of every month')}}/>                                                        
+                                                        </Menu>
+                                                        </div>} 
+                                                        position={'bottom'}
+                                                >
+                                                        <Button icon="calendar" text={this.state.frequency} style={{fontWeight:'700'}} />
+                                                </Popover>
+                                            </PopoverWrappper>
+                                            <div>
+                                                {
+                                                    showDays?
+                                                    <Days>
+                                                    {
+                                                        this.renderDays()  
+                                                    }
+                                                    </Days>
+                                                    :
+                                                    ""
+                                                }                                                                  
+                                            </div>  
+                                    </Preferences>                      
                             </Card>
                         </Collapse>
                     </CollapseCard>  
@@ -239,7 +258,6 @@ export default class SubEmailTypes extends React.PureComponent {
                        
                      />
                     </div>
-                   
             </div>                                 
         )
     }

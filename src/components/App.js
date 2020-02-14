@@ -21,7 +21,9 @@ const EmailPrefHeader = styled.div`
 class App extends React.PureComponent
 {
   state = {
-            emailTypesCollection:[]
+            emailTypesCollection:[],
+            dayOfTheWeek:'',
+            frequency:''
           }
   componentDidMount = async ()=>{
     const emailTypesCollection =[
@@ -45,7 +47,7 @@ class App extends React.PureComponent
                       "type": "reports",
                       "preference_id": 6,
                       "enabled": true,
-                      "frequency": "very week",
+                      "frequency": "every week",
                       "day_of_the_week": "nil"
                     }
                   ]
@@ -140,23 +142,51 @@ class App extends React.PureComponent
         })
       })
     )
+    
   }
-  onClickMailPreferences = (emailType,frequency,dayOfWeek)=>{
-        console.log(emailType,frequency,dayOfWeek)
-  }
-
-  
+ handlePreferenceChanges = (emailType,mode)=>{
+  this.setState(
+    produce(draft => {
+      draft.emailTypesCollection.map((mailName)=>{
+        return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType[mode]=mode):subMailType)
+      })
+    })
+  )
+ }
+ onFrequencyUpdate=(emailType,frequency)=>{
+  // this.handlePreferenceChanges(emailType,frequency)
+   this.setState({frequency})
+ }
+ onDayUpdate=(emailType,dayOfTheWeek)=>{
+  //  console.log(dayOfTheWeek)
+  console.log(dayOfTheWeek)
+  this.setState(
+    produce(draft => {
+      draft.emailTypesCollection.map((mailName)=>{
+        return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType.day_of_the_week=dayOfTheWeek):subMailType)
+      })
+    })
+  )
+   this.setState({dayOfTheWeek})
+ }
   render()
   {
     if(this.state.emailTypesCollection.length)
     {
       // console.log(this.state.emailTypesCollection[0].email[0].enabled)
+      {console.log(this.state.emailTypesCollection)}
       return (
         <div className="email-type">
           {this.renderPageHeader()}
           <EmailType 
-            emailCollection={this.state.emailTypesCollection} onSwitchHandle={this.onSwitchHandle} onClickMailPreferences={this.onClickMailPreferences}
+            emailCollection={this.state.emailTypesCollection} 
+            onSwitchHandle={this.onSwitchHandle} 
+            onClickMailPreferences={this.onClickMailPreferences}
+            onFrequencyUpdate={this.onFrequencyUpdate}
+            onDayUpdate={this.onDayUpdate}
+        handlePreferenceChanges={this.handlePreferenceChanges}
           />
+          {console.log(this.state.emailTypesCollection)}
         </div>
        )
     } else

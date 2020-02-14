@@ -4,7 +4,7 @@ import './EmailType.css';
 import styled from 'styled-components'
 
 const Wrapper = styled.div`
-    padding: 10px;
+    padding: 0;
     margin-left: 10%;
     margin-top: 2%;
     margin-right: 10%;
@@ -14,6 +14,7 @@ const Wrapper = styled.div`
 `
 const EmailCard = styled.div`
     font-family: arial, sans-serif;
+    margin : 0;
     border-collapse: collapse;
     width: 100%;
 `
@@ -29,7 +30,7 @@ const EmailHeader = styled.div`
 
 export default class EmailType extends Component {
     renderEmailTypes = (emailCollection)=>{
-            console.log('hey')
+            // console.log('hey')
             return emailCollection.map((emailType, index)=>{
                 return (                       
                          <Wrapper key={"email"+index}>
@@ -39,7 +40,16 @@ export default class EmailType extends Component {
                                     </EmailHeader>                                
                                 {emailType.email.map((subEmailTypes, index)=>{
                                     return(
-                                                <SubEmailTypes key={"subemail"+ index} subEmail={subEmailTypes} onSwitchHandle={this.props.onSwitchHandle} onClickMailPreferences={this.props.onClickMailPreferences}/>                                       
+                                                <SubEmailTypes 
+                                                    key={"subemail"+ index} 
+                                                    subEmail={subEmailTypes}
+                                                    onSwitchHandle={this.props.onSwitchHandle} 
+                                                    onClickMailPreferences={this.props.onClickMailPreferences}
+                                                    onFrequencyUpdate={this.props.onFrequencyUpdate}
+                                                    onDayUpdate={this.props.onDayUpdate}
+                                                    handlePreferenceChanges={this.props.handlePreferenceChanges}
+
+                                                />                                       
                                           )
                                 })}                
                             </EmailCard>                           
