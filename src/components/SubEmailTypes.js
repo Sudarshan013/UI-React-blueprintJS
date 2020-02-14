@@ -1,10 +1,8 @@
-import React, { Component, forwardRef } from 'react'
-import {Button,Switch,Popover,Collapse,Menu,Card, MenuItem} from '@blueprintjs/core'
-import {Select} from '@blueprintjs/select'
+import React from 'react'
+import {Button,Switch,Popover,Collapse,Menu,Card, MenuItem,Toaster,Toast} from '@blueprintjs/core'
 import styled from 'styled-components'
 import produce from "immer"
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+
 
 const SubEmailType = styled.div`
     padding: 10px 10px 10px 30px;
@@ -15,7 +13,10 @@ const SubEmailType = styled.div`
      
 `
 const Preferences = styled.div`
+    align-items : center;
     display : flex;
+    height : 43px;
+    width : 880px;
     flex-direction : row;
 `
 const ManagePreferences = styled.div`
@@ -43,34 +44,46 @@ const SwitchOverrite = styled.div`
         margin-bottom: 0;
     }
 `
-const PopoverWrappper = styled.span`
+const PopoverWrappper = styled.div`
 
     align-items: center;
     display : inline;
+    // height : 70px;
+    // width : 70px;
     display: flex;
     margin-right: 10px;
 
 `
-const Day = styled.li`
-    padding : 10px;
+const Day = styled.span`
     text-align : center;
     text-decoration : none;
     font-weight : 400;
     justify-content : center;
     font-size : 14px;
+    line-height : 1.7;
     list-style-type: none;
     margin : 3px;   
     border-radius : 50%;
+    height: 25px;
+    width: 25px;
+    padding : 2px;
+    // background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    :hover {
+        cursor : pointer;
+    }
 `
 const Days = styled.div`
         display : flex;
         margin : 5px;
+      
         flex-direction : row;
 `
 const CollapseCard = styled.div`
-    // margin-left:10px;
-    // margin-right : 10px;
-
+    .bp3-collapse-body{
+        padding: 10px;
+    }
 `
 
 export default class SubEmailTypes extends React.PureComponent {
@@ -78,9 +91,9 @@ export default class SubEmailTypes extends React.PureComponent {
             textColor:"#8C9196",
             dayBgColor: "#F1F3F4",
             isOpen : false,
-            showDays : false,
-            frequency : 'Recieve',
-            settings : 'Manage',
+            showDays : this.props.subEmail.frequency=='Every week' ||this.props.subEmail.frequency=='Every two weeks'?true:false ,
+            frequency : this.props.subEmail.frequency,
+            settings : 'Show options',
             switchDisable : false,
             selectedDayId : '',
             days:[{
@@ -114,6 +127,7 @@ export default class SubEmailTypes extends React.PureComponent {
             }]
         } 
        
+     
         onDaySelect = (day,mode)=>{
             this.setState(
                {selectedDayId:day.id,dayBgColor:"#1a73e8",textColor : "white"}
@@ -121,17 +135,18 @@ export default class SubEmailTypes extends React.PureComponent {
             this.setState(
                 produce(draft => {
                     draft.days.map((d)=>{
-                    return d.id==day.id?d.selected=mode:d.selected=false        
+                    return d.id===day.id?d.selected=mode:d.selected=false        
                 })
                 })
             )
             // this.props.onDayUpdate(this.props.subEmail,day.id)
             this.props.handlePreferenceChanges(this.props.subEmail,'day_of_the_week',day.id)
-            toast('Changes saved..')   
+            // toaster.show({ message: "Toasted!" });
+           
         }
         toggleSettings = ()=>{
             this.setState({isOpen:!this.state.isOpen,switchDisable:!this.state.switchDisable,
-                           settings:this.state.settings==="Manage"?"Hide":"Manage"}
+                           settings:this.state.settings==="Show options"?"Hide options":"Show options"}
                         )
         }
         handleFrequencyChange=(frequency)=> {
@@ -148,18 +163,20 @@ export default class SubEmailTypes extends React.PureComponent {
             this.props.handlePreferenceChanges(this.props.subEmail,'frequency',frequency)
 
         }
-        handleSubmit=(event)=> {
-            
-            // this.setState({settings:this.state.settings==="Manage"?"Hide":"Manage"})
-            // this.setState({isOpen:!this.state.isOpen})
-            // this.setState({switchDisable : !this.state.switchDisable})
-            // this.props.onClickMailPreferences(this.props.subEmail,this.state.value,this.state.selectedDayId)
-            // event.preventDefault();
-        }
         renderDays =()=>{
             return this.state.days.map((day)=>{
+                let preEnabledDayId=this.props.subEmail.day_of_the_week
+                if(preEnabledDayId)
+                {
+                    this.setState(
+                        produce(draft => {
+                          draft.days.map((d)=>{
+                            return (preEnabledDayId==d.id?d.selected=true:d)
+                          })
+                        }))
+                }
                 return (                    
-                    <Day key={day.id} onClick={()=>{this.onDaySelect(day,!day.selected)}} style={{color:day.selected||(this.props.subEmail.day_of_the_week==day.id)?'white':'#8C9196', backgroundColor:day.selected||(this.props.subEmail.day_of_the_week==day.id)?'#1a73e8':'#F1F3F4'}} >
+                    <Day key={day.id} onClick={()=>{this.onDaySelect(day,!day.selected)}} style={{color:day.selected?'white':'#8C9196', backgroundColor:day.selected?'#1a73e8':'#F1F3F4'}} >
                         {day.label}
                     </Day>
                 )
@@ -206,18 +223,9 @@ export default class SubEmailTypes extends React.PureComponent {
                     <Collapse isOpen={this.state.isOpen} >
                         <Card elevation={0}>             
                                     <Preferences>
-                                    
-                                            {/* <SelectPreferences className="select-option" value={this.state.value} onChange={this.handleChange}>
-                                                <option value="every_week">Every week</option>
-                                                <option value="every_two_weeks">Every two weeks</option>
-                                                <option value="start_of_every_month">Start of every month</option>
-                                                <option value="end_of_every_month">End of every month</option>
-                                                
-                                            </SelectPreferences> */}
-                                        
-                                            {/* <div style={{float : 'right'}}> 
-                                                    <Button intent="success" text="Save" type="submit" style={{backgroundColor:'#2A3375'}}/>
-                                            </div> */}
+                                            <div style={{marginRight : '10px'}}>
+                                                Recieve
+                                            </div>
                                             <PopoverWrappper>                                               
                                                 <Popover  content={
                                                     <div style={{display:'inline'}}>
@@ -249,19 +257,14 @@ export default class SubEmailTypes extends React.PureComponent {
                             </Card>
                         </Collapse>
                     </CollapseCard>  
-                    <div style={{color:'red'}}>
-                    <ToastContainer
-                        position="bottom-right"
-                        autoClose={2000}
-                        hideProgressBar={true}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnVisibilityChange
-                       
-                     />
+                    <div>
+                    
+                <Toaster position='top' text='hey' clear={false}>
+                   
+                </Toaster>
                     </div>
             </div>                                 
         )
     }
+  
 }

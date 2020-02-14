@@ -37,7 +37,7 @@ class App extends React.PureComponent
                       "type": "reports",
                       "preference_id": 3,
                       "enabled": false,
-                      "frequency": "every two weeks",
+                      "frequency": "Every two weeks",
                       "day_of_the_week": "   "
                     },
                     {
@@ -47,7 +47,7 @@ class App extends React.PureComponent
                       "type": "reports",
                       "preference_id": 6,
                       "enabled": true,
-                      "frequency": "every week",
+                      "frequency": "Every week",
                       "day_of_the_week": "nil"
                     }
                   ]
@@ -136,8 +136,7 @@ class App extends React.PureComponent
           draft.emailTypesCollection.map((mailName)=>{
             return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType[attr]=mode):subMailType)
           })
-        })
-      )
+        }))
  }
   render()
   {
