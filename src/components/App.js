@@ -123,51 +123,21 @@ class App extends React.PureComponent
             }
 
    renderPageHeader = ()=>{
-
-      return(
-
-                <EmailPrefHeader>
-                  Customize your mail preferences
-                </EmailPrefHeader>
-
-
-      )
+          return(
+                      <EmailPrefHeader>
+                        Customize your mail preferences
+                      </EmailPrefHeader>
+                )
    }
 
-  onSwitchHandle = (emailType,mode)=>{
-    this.setState(
-      produce(draft => {
-        draft.emailTypesCollection.map((mailName)=>{
-          return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType.enabled=mode):subMailType)
+ handlePreferenceChanges = (emailType,attr,mode)=>{
+      this.setState(
+        produce(draft => {
+          draft.emailTypesCollection.map((mailName)=>{
+            return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType[attr]=mode):subMailType)
+          })
         })
-      })
-    )
-    
-  }
- handlePreferenceChanges = (emailType,mode)=>{
-  this.setState(
-    produce(draft => {
-      draft.emailTypesCollection.map((mailName)=>{
-        return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType[mode]=mode):subMailType)
-      })
-    })
-  )
- }
- onFrequencyUpdate=(emailType,frequency)=>{
-  // this.handlePreferenceChanges(emailType,frequency)
-   this.setState({frequency})
- }
- onDayUpdate=(emailType,dayOfTheWeek)=>{
-  //  console.log(dayOfTheWeek)
-  console.log(dayOfTheWeek)
-  this.setState(
-    produce(draft => {
-      draft.emailTypesCollection.map((mailName)=>{
-        return mailName.email.map((subMailType)=>(subMailType.name === emailType.name)?(subMailType.day_of_the_week=dayOfTheWeek):subMailType)
-      })
-    })
-  )
-   this.setState({dayOfTheWeek})
+      )
  }
   render()
   {
@@ -184,7 +154,7 @@ class App extends React.PureComponent
             onClickMailPreferences={this.onClickMailPreferences}
             onFrequencyUpdate={this.onFrequencyUpdate}
             onDayUpdate={this.onDayUpdate}
-        handlePreferenceChanges={this.handlePreferenceChanges}
+            handlePreferenceChanges={this.handlePreferenceChanges}
           />
           {console.log(this.state.emailTypesCollection)}
         </div>

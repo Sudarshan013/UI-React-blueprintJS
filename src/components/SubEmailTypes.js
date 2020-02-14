@@ -125,7 +125,8 @@ export default class SubEmailTypes extends React.PureComponent {
                 })
                 })
             )
-            this.props.onDayUpdate(this.props.subEmail,day.id)
+            // this.props.onDayUpdate(this.props.subEmail,day.id)
+            this.props.handlePreferenceChanges(this.props.subEmail,'day_of_the_week',day.id)
             toast('Changes saved..')   
         }
         toggleSettings = ()=>{
@@ -143,7 +144,9 @@ export default class SubEmailTypes extends React.PureComponent {
                 this.setState({showDays:false})
             }
             this.setState({frequency});
-            this.props.onFrequencyUpdate(this.props.subEmail,frequency)
+            // this.props.onFrequencyUpdate(this.props.subEmail,frequency)
+            this.props.handlePreferenceChanges(this.props.subEmail,'frequency',frequency)
+
         }
         handleSubmit=(event)=> {
             
@@ -193,7 +196,7 @@ export default class SubEmailTypes extends React.PureComponent {
                                 } 
                             </ManagePreferences>
                             <SwitchOverrite>
-                                <Switch large={true} checked={this.props.subEmail.enabled} onChange={()=>{this.props.onSwitchHandle(this.props.subEmail,!this.props.subEmail.enabled)}} disabled={this.state.switchDisable}/>
+                                <Switch large={true} checked={this.props.subEmail.enabled} onChange={()=>{this.props.handlePreferenceChanges(this.props.subEmail,'enabled',!this.props.subEmail.enabled)}} disabled={this.state.switchDisable}/>
                             </SwitchOverrite>
                          
                         </SubEmailType>
