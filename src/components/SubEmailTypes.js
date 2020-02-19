@@ -1,101 +1,20 @@
 import React from 'react'
-import {Button,Switch,Popover,Collapse,Menu,Card, MenuItem,Toaster,Toast} from '@blueprintjs/core'
-import styled from 'styled-components'
+import {Button,Switch,Popover,Collapse,Menu,Card, MenuItem,Toaster} from '@blueprintjs/core'
 import produce from "immer"
+import {SubEmailType,EmailDescription,Preferences,ManagePreferences,SubEmailWrapper,SwitchWrapper,PopoverWrappper,Day,Days,CollapseCard} from './StyledComponents'
 
-
-const SubEmailType = styled.div`
-    padding: 10px 10px 10px 30px;
-    font-size : 14px;
-    display:flex;
-    flex-direction:row;
-    align-items: center;
-     
-`
-const Preferences = styled.div`
-    align-items : center;
-    display : flex;
-    height : 43px;
-    width : 880px;
-    flex-direction : row;
-`
-const ManagePreferences = styled.div`
-  padding-right: 15px;
-`
-
-const SubEmailWrapper = styled.div`
-    :hover {
-        background-color: #edf9ff;
-    }
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    flex-wrap: nowrap;   
-    border-top: 1.2px solid #f0f0f0;
-
-`
-const SelectPreferences = styled.select`
-    background-color : white;
-    margin-left : 0px;
-    margin-right : 3px;
-`
-const SwitchOverrite = styled.div`
-    .bp3-control{
-        margin-bottom: 0;
-    }
-`
-const PopoverWrappper = styled.div`
-
-    align-items: center;
-    display : inline;
-    // height : 70px;
-    // width : 70px;
-    display: flex;
-    margin-right: 10px;
-
-`
-const Day = styled.span`
-    text-align : center;
-    text-decoration : none;
-    font-weight : 400;
-    justify-content : center;
-    font-size : 14px;
-    line-height : 1.7;
-    list-style-type: none;
-    margin : 3px;   
-    border-radius : 50%;
-    height: 25px;
-    width: 25px;
-    padding : 2px;
-    // background-color: #bbb;
-    border-radius: 50%;
-    display: inline-block;
-    :hover {
-        cursor : pointer;
-    }
-`
-const Days = styled.div`
-        display : flex;
-        margin : 5px;
-      
-        flex-direction : row;
-`
-const CollapseCard = styled.div`
-    .bp3-collapse-body{
-        padding: 10px;
-    }
-`
+export const notifyToaster = Toaster.create({
+    className: "notify-toaster",
+    position: 'top',
+    maxToasts: 2
+});
 
 export default class SubEmailTypes extends React.PureComponent {
         state = {
-            textColor:"#8C9196",
-            dayBgColor: "#F1F3F4",
+            toggleSwitch : this.props.subEmail.enabled,
             isOpen : false,
-            showDays : this.props.subEmail.frequency=='Every week' ||this.props.subEmail.frequency=='Every two weeks'?true:false ,
             frequency : this.props.subEmail.frequency,
             settings : 'Show options',
-            switchDisable : false,
-            selectedDayId : '',
             days:[{
                 label: 'S',
                 id : 0,
@@ -125,12 +44,13 @@ export default class SubEmailTypes extends React.PureComponent {
                 id : 6,
                 selected: false
             }]
-        } 
-       
-     
+        }  
         onDaySelect = (day,mode)=>{
             this.setState(
-               {selectedDayId:day.id,dayBgColor:"#1a73e8",textColor : "white"}
+                {
+                    selectedDayId: day.id, dayBgColor: "#1a73e8",
+                    textColor: "white"
+                }
             )
             this.setState(
                 produce(draft => {
@@ -139,30 +59,48 @@ export default class SubEmailTypes extends React.PureComponent {
                 })
                 })
             )
-            // this.props.onDayUpdate(this.props.subEmail,day.id)
             this.props.handlePreferenceChanges(this.props.subEmail,'day_of_the_week',day.id)
-            // toaster.show({ message: "Toasted!" });
-           
+            notifyToaster.show({ message: 'Your changes has been successfully saved.',  intent: 'primary',timeout : 2000,icon : "tick" })
         }
+    
         toggleSettings = ()=>{
-            this.setState({isOpen:!this.state.isOpen,switchDisable:!this.state.switchDisable,
-                           settings:this.state.settings==="Show options"?"Hide options":"Show options"}
+            this.setState(
+                            {
+                                isOpen: !this.state.isOpen,
+                                settings:this.state.settings==="Show options"?"Hide options":"Show options",
+                            }
                         )
-        }
+            }
+    
         handleFrequencyChange=(frequency)=> {
-            // console.log(frequency)
-            if(frequency==="Every week" || frequency==="Every two weeks")
+            if(frequency==="every week" || frequency==="every two weeks")
             {
                 this.setState({showDays:true})
             }
-            else{
+            else {
+                notifyToaster.show({ message: 'Your changes have been successfully saved.',  intent: 'primary',timeout : 2000,icon : "tick" })
                 this.setState({showDays:false})
             }
             this.setState({frequency});
-            // this.props.onFrequencyUpdate(this.props.subEmail,frequency)
             this.props.handlePreferenceChanges(this.props.subEmail,'frequency',frequency)
-
         }
+    
+        handleSwitchChange=(mode)=>{
+            if(this.state.isOpen && this.state.toggleSwitch )
+            {
+                this.setState({
+                               isOpen: !this.state.isOpen,
+                               toggleSwitch:!this.state.toggleSwitch,
+                               settings: this.state.settings === "Show options" ? "Hide options" : "Show options"
+                              })
+            }
+            else
+            {
+              this.setState({toggleSwitch:!this.state.toggleSwitch})    
+            }
+            this.props.handlePreferenceChanges(this.props.subEmail,'enabled',mode)
+        }
+    
         renderDays =()=>{
             return this.state.days.map((day)=>{
                 let preEnabledDayId=this.props.subEmail.day_of_the_week
@@ -171,98 +109,105 @@ export default class SubEmailTypes extends React.PureComponent {
                     this.setState(
                         produce(draft => {
                           draft.days.map((d)=>{
-                            return (preEnabledDayId==d.id?d.selected=true:d)
+                            return (preEnabledDayId===d.id?d.selected=true:d)
                           })
                         }))
                 }
                 return (                    
-                    <Day key={day.id} onClick={()=>{this.onDaySelect(day,!day.selected)}} style={{color:day.selected?'white':'#8C9196', backgroundColor:day.selected?'#1a73e8':'#F1F3F4'}} >
+                    <Day key={day.id} onClick={() => { this.onDaySelect(day, !day.selected) }}
+                        style={{ color: day.selected ? 'white' : '#8C9196', 
+                        backgroundColor: day.selected ? '#1a73e8' : '#F1F3F4' }} >
                         {day.label}
                     </Day>
                 )
             })
-
         }
-  
+        
     render() {
         const viewSettings = this.props.subEmail.enabled
-        const showDays = this.state.showDays
-        // console.log(this.state.days)
         return (
             <div key={"sub"+this.props.subEmail.name}>
+                
                 <SubEmailWrapper>
                         <SubEmailType>
                             <div>
-                            {this.props.subEmail.name}
-                            <p style={{color:'#919496'}}>
-                            
-                            {this.props.subEmail.description}
-                            </p>
+                                {this.props.subEmail.name}
+                                    <EmailDescription>
+                                        {this.props.subEmail.description}
+                                    </EmailDescription>
                             </div>                                                             
                         </SubEmailType>
                         <SubEmailType>
-                            <ManagePreferences>
-                                {
-                                    viewSettings?
-                                            <a  onClick={this.toggleSettings}>
-                                                {this.state.settings}
-                                            </a>
-                                            :
-                                        undefined
-                                        
-                                } 
-                            </ManagePreferences>
-                            <SwitchOverrite>
-                                <Switch large={true} checked={this.props.subEmail.enabled} onChange={()=>{this.props.handlePreferenceChanges(this.props.subEmail,'enabled',!this.props.subEmail.enabled)}} disabled={this.state.switchDisable}/>
-                            </SwitchOverrite>
-                         
-                        </SubEmailType>
-                                                  
+                            { this.props.subEmail.type==='Developer Alert'?
+                                <SwitchWrapper>
+                                    <Switch 
+                                        large={true} 
+                                        checked={this.state.toggleSwitch} 
+                                        onChange={() => { this.handleSwitchChange(!this.state.toggleSwitch) }}
+                                    />
+                                </SwitchWrapper>
+                                :
+                                    <div style={{display:'flex'}}>
+                                        <ManagePreferences>
+                                        {
+                                            viewSettings?
+                                                    <a  onClick={this.toggleSettings}>
+                                                        {this.state.settings}
+                                                    </a>
+                                                    :
+                                                undefined           
+                                        } 
+                                    </ManagePreferences>
+                                    <SwitchWrapper>
+                                        <Switch 
+                                            large={true} 
+                                            checked={this.state.toggleSwitch} 
+                                            onChange={() => { this.handleSwitchChange(!this.state.toggleSwitch) }}
+                                        />
+                                    </SwitchWrapper>
+                                </div>
+                                
+                            }                 
+                        </SubEmailType>                                         
             </SubEmailWrapper>       
-            <CollapseCard>
+                  <CollapseCard>
                     <Collapse isOpen={this.state.isOpen} >
                         <Card elevation={0}>             
                                     <Preferences>
                                             <div style={{marginRight : '10px'}}>
-                                                Recieve
+                                                Receive
                                             </div>
                                             <PopoverWrappper>                                               
                                                 <Popover  content={
                                                     <div style={{display:'inline'}}>
                                                         <Menu >
-                                                                <MenuItem text="Every week" onClick={()=>{this.handleFrequencyChange('Every week')}} />
-                                                                <MenuItem text="Every two weeks" onClick={()=>{this.handleFrequencyChange('Every two weeks')}}/>
-                                                                <MenuItem text="Start of every month" onClick={()=>{this.handleFrequencyChange('Start of every month')}}/>
-                                                                <MenuItem text="End of every month" onClick={()=>{this.handleFrequencyChange('End of every month')}}/>                                                        
+                                                                <MenuItem text="Every week" onClick={()=>{this.handleFrequencyChange('every week')}} />
+                                                                <MenuItem text="Every two weeks" onClick={()=>{this.handleFrequencyChange('every two weeks')}}/>
+                                                                <MenuItem text="First of every month" onClick={()=>{this.handleFrequencyChange('first of every month')}}/>
+                                                                <MenuItem text="Last of every month" onClick={()=>{this.handleFrequencyChange('last of every month')}}/>                                                        
                                                         </Menu>
-                                                        </div>} 
+                                                    </div>} 
                                                         position={'bottom'}
-                                                >
-                                                        <Button icon="calendar" text={this.state.frequency} style={{fontWeight:'700'}} />
+                                                   >
+                                                 <Button  icon="calendar"  text={this.state.frequency.charAt(0).toUpperCase()+this.state.frequency.slice(1) } style={{fontWeight:'700'}} />
                                                 </Popover>
                                             </PopoverWrappper>
-                                            <div>
-                                                {
-                                                    showDays?
-                                                    <Days>
-                                                    {
-                                                        this.renderDays()  
-                                                    }
-                                                    </Days>
-                                                    :
-                                                    ""
-                                                }                                                                  
-                                            </div>  
+                                                    <div>
+                                                        {
+                                                            this.props.subEmail.frequency==='every week' || this.props.subEmail.frequency==='every two weeks' ?
+                                                            <Days>
+                                                            {
+                                                                this.renderDays()  
+                                                            }
+                                                            </Days>
+                                                            :
+                                                            ""
+                                                        }                                                                  
+                                                    </div>  
                                     </Preferences>                      
-                            </Card>
-                        </Collapse>
-                    </CollapseCard>  
-                    <div>
-                    
-                <Toaster position='top' text='hey' clear={false}>
-                   
-                </Toaster>
-                    </div>
+                       </Card>
+                     </Collapse>
+                   </CollapseCard>  
             </div>                                 
         )
     }

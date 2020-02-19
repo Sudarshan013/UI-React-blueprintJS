@@ -1,36 +1,9 @@
 import React, { Component } from 'react'
 import SubEmailTypes from './SubEmailTypes'
-import './EmailType.css';
-import styled from 'styled-components'
-
-const Wrapper = styled.div`
-    padding: 0;
-    margin-left: 10%;
-    margin-top: 2%;
-    margin-right: 10%;
-    background-color: white;
-    border-radius: 3px;
-    width : 80% !important;
-`
-const EmailCard = styled.div`
-    font-family: arial, sans-serif;
-    margin : 0;
-    border-collapse: collapse;
-    width: 100%;
-`
-const EmailHeader = styled.div`
-        color: black;
-        font-weight: bold;
-        text-transform: none;
-        width: 50%%;
-        padding: 20px 10px 20px 30px;
-        font-size: 19px;
-        
-`
+import { EmailCard, EmailHeader, Wrapper } from './StyledComponents';
 
 export default class EmailType extends Component {
-    renderEmailTypes = (emailCollection)=>{
-            // console.log('hey')
+    renderEmailDetails = (emailCollection)=>{
             return emailCollection.map((emailType, index)=>{
                 return (                       
                          <Wrapper key={"email"+index}>
@@ -38,36 +11,27 @@ export default class EmailType extends Component {
                                    <EmailHeader>
                                         {emailType.name}
                                     </EmailHeader>                                
-                                {emailType.email.map((subEmailTypes, index)=>{
+                                {emailType.emails.map((subEmailTypes, index)=>{
                                     return(
-                                                <SubEmailTypes 
-                                                    key={"subemail"+ index} 
-                                                    subEmail={subEmailTypes}
-                                                    onSwitchHandle={this.props.onSwitchHandle} 
-                                                    onClickMailPreferences={this.props.onClickMailPreferences}
-                                                    onFrequencyUpdate={this.props.onFrequencyUpdate}
-                                                    onDayUpdate={this.props.onDayUpdate}
-                                                    handlePreferenceChanges={this.props.handlePreferenceChanges}
-
-                                                />                                       
-                                          )
+                                            <SubEmailTypes 
+                                                key={"subemail"+ index} 
+                                                subEmail={subEmailTypes}
+                                                handlePreferenceChanges={this.props.handlePreferenceChanges}
+                                            />                                       
+                                    )
                                 })}                
                             </EmailCard>                           
                          </Wrapper>
-                            )
+                     )
             })
     }
     render() {
-
         return(
             <div>
                 {
-                    this.renderEmailTypes(this.props.emailCollection)
+                    this.renderEmailDetails(this.props.emailCollection)
                 }
-            </div>
-                
-        ) 
-        
-          
+            </div>                
+        )         
 }
 }
